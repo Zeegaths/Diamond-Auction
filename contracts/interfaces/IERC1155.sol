@@ -3,13 +3,11 @@
 
 pragma solidity ^0.8.20;
 
-import {IERC165} from "../../utils/introspection/IERC165.sol";
-
 /**
  * @dev Required interface of an ERC-1155 compliant contract, as defined in the
  * https://eips.ethereum.org/EIPS/eip-1155[ERC].
  */
-interface IERC1155 is IERC165 {
+interface IERC1155 {
     /**
      * @dev Emitted when `value` amount of tokens of type `id` are transferred from `from` to `to` by `operator`.
      */
