@@ -13,7 +13,7 @@ library LibAppStorage {
         uint8 decimals;
         uint256 tokenId;
         string tokenURI;
-        address[] availableBids
+        address[] availableBids;
         uint256 currentPrice;
         uint256 biddingprice;block.timestamp - l.auctionOpenTime >= l.TIME
         uint256 auctionOpenTime;
