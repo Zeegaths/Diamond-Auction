@@ -1,19 +1,8 @@
 pragma solidity ^0.8.0;
 
 library LibAppStorage {
-    uint256 constant TIME = 432000;
-    
-    struct Bidder{
-        address bidder;
-        // uint256 tokenId;
-        uint256 bidAmount;    
-    }
-
-    struct AuctionItem {
-        address seller;
-        uint256 biddingprice;
-        bool isClosed;
-       
+    uint256 constant TIME = 432000;   
+ 
     }
 
     struct Layout {
@@ -41,28 +30,7 @@ library LibAppStorage {
         address NFT;      
         address[] bidders;
       
-
-        //NFTDetails
         mapping(uint256 =>mapping(address => uint256)) availableBids;
-    }
-
-
-    struct Nft {
-        //ERC721
-        Counters.Counter private _tokenIds;
-        Counters.Counter private _itemsSold;
-        mapping(uint256 => NFTOffer) public offers;
-        mapping(address => uint256[]) public userTokens;       
-        mapping(uint256 tokenId => address) private _owners;
-
-        mapping(address owner => uint256) private _balances;
-
-        mapping(uint256 tokenId => address) private _tokenApprovals;
-
-        mapping(address owner => mapping(address operator => bool)) private _operatorApprovals; 
-    }
-        
-
-   
+    } 
 
 }

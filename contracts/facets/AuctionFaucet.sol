@@ -10,24 +10,7 @@ import IERC20 from "../interfaces/IERC20";
 contract AuctionFaucet {
 
     LibAppStorage.Layout internal l;
-    //    modifier onlyOwner() {
-    //     require(msg.sender == owner, "Only the owner can call this function");
-    //     _;
-    // }
-
-    // Mint new NFTs
-    // function mintNFT(
-    //     address to,
-    //     string memory tokenURI
-    // ) public returns (uint256) {
-    //     l.tokenId ++;
-    //     uint256 newTokenId = tokenId.current();
-    //     _mint(to, newTokenId);
-    //     _setTokenURI(newTokenId, tokenURI);
-    //     return newTokenId;
-    // }
-
-    // Add NFT to the marketplace
+   
     event AuctionOpened(uint256 tokenId, address NFTAddress, address seller);
     event BidClosed(uint256 tokenId, address NFTAddress, address highestBidder);
 
@@ -39,7 +22,7 @@ contract AuctionFaucet {
             "Only the owner can offer the NFT"
         );        
       
-        l.availableBids[msg.sender].push(_tokenId);
+        l.availableBids[msg.sender].push(_NFTAddress);
 
         emit AuctionOpened(_tokenId, msg.sender);
     }
@@ -58,13 +41,7 @@ contract AuctionFaucet {
             IERC721(transferFrom(l.NFTowner(_tokenId), msg.sender, _tokenId))
             l.isClosed[_tokenId] = true;
         }
-        l.isClosed = false;      
-
-        // address seller = offer.seller;
-        // offers[_tokenId] = NFTOffer(address(0), 0, false);
-        // IERC721.safeTransferFrom(seller, msg.sender, _tokenId);
-
-        // payable(seller).transfer(msg.value);
+        l.isClosed = false;           
 
         emit BidPlaced(_tokenId, seller, msg.sender, _bidPrice);
     }
@@ -73,15 +50,13 @@ contract AuctionFaucet {
     function isOUtBidded(address _currentBidder) external returns (bool){
         if(l.biddingprice > l.currentPrice * (currentPrice*1/5)) {
             l.isOutBidded[l.tokenId][_currentBidder] = true;
-            uint256 extraTax = 
-            IERC20(transferFrom(address(this), _currentBidder, l.currentPrice ))
-        }
+            uint256 extraTax = (calculateTax(l.biddingprice)) * 3/10
+            IERC20(transferFrom(address(this), _currentBidder, l.currentPrice + extraTax));
+        
+        l.isOutBidded[l.tokenId][_currentBidder] = false;
+
 
     }
-    function closeBid()external {
-        require(, "Auction Ongoing")
-    }
-
 
     function calculateTax(uint256 _bidAmount) internal {
         _bidAmount - (_bidAmount * 1/10);   
@@ -89,16 +64,9 @@ contract AuctionFaucet {
     }
 
     // See NFTs on offer
-    function view(
-        uint256 _tokenId
-    ) external view returns (address, uint256, bool) {
-        NFTOffer memory offer = offers[_tokenId];
-        return (offer.seller, offer.price, offer.isAvailable);
-    }
-
-    // See your offered NFTs
-    function getMyBids() external view returns (uint256[] memory) {
-        return userTokens[msg.sender];
+    function viewBids(
+    ) external view returns (address [] storage) {       
+        return l.availableBids;
     }
 
 }
