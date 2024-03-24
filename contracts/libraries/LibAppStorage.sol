@@ -1,7 +1,7 @@
 pragma solidity ^0.8.0;
 
 library LibAppStorage {
-    
+    uint256 constant TIME = 432000;
     
     struct Bidder{
         address bidder;
@@ -26,11 +26,13 @@ library LibAppStorage {
         string tokenURI;
         address[] availableBids
         uint256 currentPrice;
-        uint256 biddingprice;
+        uint256 biddingprice;block.timestamp - l.auctionOpenTime >= l.TIME
         uint256 auctionOpenTime;
-
+        
+        mapping(uint256 => address) NFTowner;
         mapping(uint256 => bool) isClosed;
         mapping(address => mapping(address => uint256)) allowances;
+        mapping(address =>mapping(uint256 => bool))isOutBidded;
        
 
         //AUCTION

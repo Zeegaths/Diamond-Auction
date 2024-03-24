@@ -6,6 +6,7 @@ import IERC721 from "../interfaces/IERC721";
 import IERC20 from "../interfaces/IERC20";
 
 
+
 contract AuctionFaucet {
 
     LibAppStorage.Layout internal l;
@@ -46,13 +47,18 @@ contract AuctionFaucet {
     // Buy NFT
     function bidNFT(uint256 _tokenId, uint256 _bidPrice) external payable {
         l.biddingprice = _bidPrice;
-        require(!isClosed[tokenId], "This Auction is closed");
+        require(l.!isClosed[_tokenId], "This Auction is closed");
         require(_bidPrice >= l.currentPrice * 2, "You need to bid higher to outbid the last guy");        
         require(msg.value >= _bidPrice, "Insufficient funds");
 
         l.currentPrice = _bidPrice;
 
-        IERC20(transfer(address(this), _bidPrice) )      
+        IERC20(transfer(address(this), _bidPrice));
+        if(block.timestamp - l.auctionOpenTime >= l.TIME) {
+            IERC721(transferFrom(l.NFTowner(_tokenId), msg.sender, _tokenId))
+            l.isClosed[_tokenId] = true;
+        }
+        l.isClosed = false;      
 
         // address seller = offer.seller;
         // offers[_tokenId] = NFTOffer(address(0), 0, false);
@@ -61,6 +67,25 @@ contract AuctionFaucet {
         // payable(seller).transfer(msg.value);
 
         emit BidPlaced(_tokenId, seller, msg.sender, _bidPrice);
+    }
+
+
+    function isOUtBidded(address _currentBidder) external returns (bool){
+        if(l.biddingprice > l.currentPrice * (currentPrice*1/5)) {
+            l.isOutBidded[l.tokenId][_currentBidder] = true;
+            uint256 extraTax = 
+            IERC20(transferFrom(address(this), _currentBidder, l.currentPrice ))
+        }
+
+    }
+    function closeBid()external {
+        require(, "Auction Ongoing")
+    }
+
+
+    function calculateTax(uint256 _bidAmount) internal {
+        _bidAmount - (_bidAmount * 1/10);   
+        
     }
 
     // See NFTs on offer
