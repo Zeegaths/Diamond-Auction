@@ -3,7 +3,7 @@ pragma solidity ^0.8.20;
 
 import {LibAppStorage} from "../libraries/LibAppStorage.sol";
 import {IERC721} from "../interfaces/IERC721.sol";
-
+import {LibDiamond} from "../libraries/LibDiamond.sol";
 // import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import {IERC20} from "../interfaces/IERC20.sol";
 
@@ -41,6 +41,7 @@ contract AuctionFacet {
         require(msg.value >= _bidPrice, "Insufficient funds");
 
         l.currentPrice = _bidPrice;
+        l.bidders.push(msg.sender);
 
         IERC20(l.diamondToken).transfer(address(this), _bidPrice);
         if (block.timestamp - l.auctionOpenTime >= LibAppStorage.TIME) {

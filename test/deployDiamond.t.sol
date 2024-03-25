@@ -8,8 +8,9 @@ import "../contracts/facets/OwnershipFacet.sol";
 import "forge-std/Test.sol";
 import "../contracts/Diamond.sol"; 
 import "../contracts/facets/AuctionFacet.sol";
-import "../contracts/facets/ERC721Facet.sol";
-import "../contracts/facets/ERC1155Facet.sol";
+// import "../contracts/ERC721Token.sol";
+// import "../contracts/facets/ERC1155Facet.sol";
+import "../contracts/facets/ERC20Facet.sol";
 
 contract DiamondDeployer is Test, IDiamondCut {
     //contract types of facets to be deployed
@@ -19,9 +20,18 @@ contract DiamondDeployer is Test, IDiamondCut {
     OwnershipFacet ownerF;
     AuctionFacet AuctionF;
     // ERC721Facet Erc721F;
-    // ERC1155Facet Erc1155F;
+    ERC20Facet Erc20F;
 
-    function testDeployDiamond() public {
+    //State variables
+
+    address Owner = address(0xac);
+    address A = address(0xaa);
+    address B = address(0xbb);
+
+    ERC20Facet boundERC20;
+    AuctionFacet boundAuction;
+
+    function setUp() public {
         //deploy facets
         dCutFacet = new DiamondCutFacet();
         diamond = new Diamond(address(this), address(dCutFacet));
@@ -29,12 +39,14 @@ contract DiamondDeployer is Test, IDiamondCut {
         ownerF = new OwnershipFacet();
         AuctionF = new AuctionFacet();
         // Erc721F = new ERC721Facet();
-        // Erc1155F = new ERC1155Facet();
+        Erc20F = new ERC20Facet();
+
+     
 
         //upgrade diamond with facets
 
         //build cut struct
-        FacetCut[] memory cut = new FacetCut[](5);
+        FacetCut[] memory cut = new FacetCut[](4);
 
         cut[0] = (
             FacetCut({
@@ -60,30 +72,44 @@ contract DiamondDeployer is Test, IDiamondCut {
             })
         );
 
-        // cut[3] = (
-        //     FacetCut({
-        //         facetAddress: address(Erc721F),
-        //         action: FacetCutAction.Add,
-        //         functionSelectors: generateSelectors("ERC721Facet")
-        //     })
-        // );
 
-        // cut[4] = (
-        //     FacetCut({
-        //         facetAddress: address(Erc1155F),
-        //         action: FacetCutAction.Add,
-        //         functionSelectors: generateSelectors("Erc1155F")
-        //     })
-        // );
+        cut[3] = (
+            FacetCut({
+                facetAddress: address(Erc20F),
+                action: FacetCutAction.Add,
+                functionSelectors: generateSelectors("ERC20Facet")
+            })
+        );
         
-
+        
 
         //upgrade diamond
         IDiamondCut(address(diamond)).diamondCut(cut, address(0x0), "");
 
-        //call a function
-        DiamondLoupeFacet(address(diamond)).facetAddresses();
+      
+        Owner = mkaddr("owner");
+        A = mkaddr("bidder a");
+        B = mkaddr("bidder b");
+
+        //mint test tokens
+        ERC20Facet(address(diamond)).mintTo(Owner);
+        // ERC20Facet(address(diamond)).mintTo(B);
+
+        
+        boundERC20 = ERC20Facet(address(diamond));
+        boundAuction = AuctionFacet(address(diamond));
     }
+
+
+    function testFailMintToFunction() public {
+        uint256 bal = boundERC20.balanceOf(Owner);
+        assertEq(bal, 100_000_00e18);
+        // console.log(bal);
+    }
+    // function testForAuctionNftt() {}
+
+
+        
 
     function generateSelectors(
         string memory _facetName
@@ -94,6 +120,27 @@ contract DiamondDeployer is Test, IDiamondCut {
         cmd[2] = _facetName;
         bytes memory res = vm.ffi(cmd);
         selectors = abi.decode(res, (bytes4[]));
+    }
+
+
+    function mkaddr(string memory name) public returns (address) {
+        address addr = address(
+            uint160(uint256(keccak256(abi.encodePacked(name))))
+        );
+        vm.label(addr, name);
+        return addr;
+    }
+
+    function switchSigner(address _newSigner) public {
+        address foundrySigner = 0x1804c8AB1F12E6bbf3894d4083f33e07309d1f38;
+        if (msg.sender == foundrySigner) {
+            vm.startPrank(_newSigner);
+        } else {
+            vm.stopPrank();
+            vm.startPrank(_newSigner);
+        }
+
+        // uint256[]=new uint256[](2);
     }
 
     function diamondCut(
