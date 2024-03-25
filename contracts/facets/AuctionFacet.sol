@@ -16,12 +16,12 @@ contract AuctionFacet {
     event BidClosed(uint256 tokenId, address NFTAddress, address highestBidder);
     event BidPlaced(uint256 tokenId, address bidder, uint256 bidPrice);
 
-    function AuctionNFT(uint256 _tokenId, address _NFTAddress) external {
+    function auctionNFT(uint256 _tokenId, address _NFTAddress) external {
         l.NFT = _NFTAddress;
         l.tokenId = _tokenId;
         require(
             IERC721(l.NFT).ownerOf(_tokenId) == msg.sender,
-            "Only the owner can offer the NFT"
+            "Only the owner can auction the NFT"
         );
 
         l.allBids.push(_NFTAddress);

@@ -8,7 +8,7 @@ import "../contracts/facets/OwnershipFacet.sol";
 import "forge-std/Test.sol";
 import "../contracts/Diamond.sol"; 
 import "../contracts/facets/AuctionFacet.sol";
-// import "../contracts/ERC721Token.sol";
+import "../contracts/ERC721Token.sol";
 // import "../contracts/facets/ERC1155Facet.sol";
 import "../contracts/facets/ERC20Facet.sol";
 
@@ -18,13 +18,14 @@ contract DiamondDeployer is Test, IDiamondCut {
     DiamondCutFacet dCutFacet;
     DiamondLoupeFacet dLoupe;
     OwnershipFacet ownerF;
-    AuctionFacet AuctionF;
-    // ERC721Facet Erc721F;
+    AuctionFacet AuctionF;   
     ERC20Facet Erc20F;
+    ERC721Token Erc721T;
 
     //State variables
 
     address Owner = address(0xac);
+    address NftOwner =address(0xdd);
     address A = address(0xaa);
     address B = address(0xbb);
 
@@ -40,6 +41,7 @@ contract DiamondDeployer is Test, IDiamondCut {
         AuctionF = new AuctionFacet();
         // Erc721F = new ERC721Facet();
         Erc20F = new ERC20Facet();
+        Erc721T = new  ERC721Token();
 
      
 
@@ -108,7 +110,18 @@ contract DiamondDeployer is Test, IDiamondCut {
     }
     // function testForAuctionNftt() {}
 
+    function testAuctionerIsOwner() public {
 
+        switchSigner(NftOwner);
+        Erc721T.mint();    
+        Erc721T.approve(address(diamond), 1);
+
+        vm.expectRevert("Only the owner can auction the NFT");
+
+        switchSigner(Owner);
+        boundAuction.auctionNFT(1, address(Erc721T));
+       
+    }
         
 
     function generateSelectors(
